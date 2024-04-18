@@ -25,20 +25,26 @@ I also update the prior of Alice and Bob on how truthful Fox is and they still k
 '''
 
 import random as r
+import matplotlib.pyplot as plt
 
 prior_alice = 0.5
 prior_bob = 0.5
 
-fox_truthful_alice = 0.4
-fox_truthful_bob = 0.6
+fox_truthful_alice = 0.2
+fox_truthful_bob = 0.8
 
-def bayes_updating_l(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob):
+# Experiment
 
-        left_given_truthful_left = 0.7
-        left_given_truthful_right = 0.3
+left_given_truthful_left = 0.9
+left_given_truthful_right = 0.1
+left_given_lies_left = 0.8
+left_given_lies_right = 0.0
 
-        left_given_lies_left = 0.3
-        left_given_lies_right = 0.7
+# assume that theta^*=(R,T)
+
+def bayes_updating_l(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob,
+                     left_given_truthful_left, left_given_truthful_right,
+                     left_given_lies_left, left_given_lies_right):
 
         # posterior after observing left 
 
@@ -60,13 +66,9 @@ def bayes_updating_l(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bo
 
         return posterior_alice_l, posterior_bob_l, fox_posterior_alice_l, fox_posterior_bob_l
 
-def bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob):
-
-        left_given_truthful_left = 0.7
-        left_given_truthful_right = 0.3
-
-        left_given_lies_left = 0.3
-        left_given_lies_right = 0.7
+def bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob,
+                     left_given_truthful_left, left_given_truthful_right,
+                     left_given_lies_left, left_given_lies_right):
 
         # posteriors after observing right
 
@@ -88,21 +90,46 @@ def bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bo
 
         return posterior_alice_r, posterior_bob_r, fox_posterior_alice_r, fox_posterior_bob_r
 
-
-for i in range(10000):
+alice_event_posteriors = []
+alice_fox_posteriors = []
+bob_event_posteriors = []
+bob_fox_posteriors = []
+signal_realizations =[]
+for i in range(100000):
         # p= probability of observing r
-        ex = r.binomialvariate(n=1,p=0.7)
+        ex = r.binomialvariate(n=1,p=(1-left_given_truthful_right))
+        signal_realizations.append(ex)
         if ex == 1:
-                a, b, c, d = bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob)
+                a, b, c, d = bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob,
+                                              left_given_truthful_left, left_given_truthful_right,
+                                              left_given_lies_left, left_given_lies_right)
                 prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob = a, b, c, d
+                alice_event_posteriors.append(prior_alice)
+                alice_fox_posteriors.append(fox_truthful_alice)
+                bob_event_posteriors.append(prior_bob)
+                bob_fox_posteriors.append(fox_truthful_bob)
         else:
-                a, b, c, d = bayes_updating_l(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob)
+                a, b, c, d = bayes_updating_l(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob,
+                                              left_given_truthful_left, left_given_truthful_right,
+                                              left_given_lies_left, left_given_lies_right)
                 prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob = a, b, c, d
+                alice_event_posteriors.append(prior_alice)
+                alice_fox_posteriors.append(fox_truthful_alice)
+                bob_event_posteriors.append(prior_bob)
+                bob_fox_posteriors.append(fox_truthful_bob)
 
 print(prior_alice)
 print(fox_truthful_alice)
 print(prior_bob)
-print(fox_truthful_bob)
+print(fox_truthful_bob, "\n")
 
+print(sum(alice_event_posteriors) / len(alice_event_posteriors))
 
+plt.scatter(alice_event_posteriors, alice_fox_posteriors, c = "blue")
+plt.scatter(bob_event_posteriors, bob_fox_posteriors, c = "red")
+plt.xlim(0,1)
+plt.ylim(0,1)
+plt.xlabel("Event Posterior")
+plt.ylabel("Fox Truthful Posterior")
+plt.show()
 
