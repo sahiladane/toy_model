@@ -1,4 +1,4 @@
-prior_alice = 0.5
+prior_alice = 0.3
 prior_bob = 0.5
 
 fox_truthful_alice = 0.2
@@ -10,6 +10,17 @@ left_given_truthful_left = 0.7
 left_given_truthful_right = 0.3
 left_given_lies_left = 0.3
 left_given_lies_right = 0.7
+
+
+def prob_of_r(prior_alice, fox_truthful_alice):
+	r_in_R = fox_truthful_alice * (1-left_given_truthful_right) + (1-fox_truthful_alice)*(1-left_given_lies_right)
+	r_in_L = fox_truthful_alice * (1-left_given_truthful_left) + (1-fox_truthful_alice)*(1-left_given_lies_left)
+
+	print(r_in_R)
+	print(r_in_L, '\n')
+
+
+prob_of_r(prior_alice, fox_truthful_alice)
 
 
 def bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob):
@@ -38,8 +49,10 @@ def bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bo
 bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob)
 
 
-
+'''
 for i in range(10):
     a, b, c, d = bayes_updating_r(prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob)
-    prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob = a, b, c, d
 
+    
+    prior_alice, prior_bob, fox_truthful_alice, fox_truthful_bob = a, b, c, d
+'''
